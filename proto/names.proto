@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package names;
+
+option go_package = "github.com/montevive/go-name-detector/pkg/proto";
+
+// Represents a single name entry with its metadata
+message NameEntry {
+    string name = 1;
+    map<string, float> country = 2;  // Country code → probability
+    map<string, float> gender = 3;   // "M"/"F" → probability (only for first names)
+    map<string, int32> rank = 4;     // Country code → rank (1 = most popular)
+}
+
+// Container for a complete name dataset (first names or last names)
+message NameDataset {
+    repeated NameEntry entries = 1;
+}
+
+// Combined dataset with both first and last names
+message CombinedNameDataset {
+    NameDataset first_names = 1;
+    NameDataset last_names = 2;
+}
