@@ -1,6 +1,12 @@
 # Go PII Name Detector
 
+[![Go Version](https://img.shields.io/badge/go-%3E%3D1.16-blue.svg)](https://golang.org/dl/)
+[![Release](https://img.shields.io/github/v/release/montevive/go-name-detector)](https://github.com/montevive/go-name-detector/releases)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 A high-performance Go library for detecting PII (Personally Identifiable Information) names by [Montevive.AI](https://montevive.ai). This is a **Go migration** of the popular [names-dataset](https://github.com/philipperemy/name-dataset) Python library, offering **10x faster performance** and **6x less memory usage** while maintaining the same comprehensive name database.
+
+**🎉 v1.0.0 Released** - Production-ready with embedded dataset and out-of-the-box functionality!
 
 ## 🚀 Migration from Python to Go
 
@@ -49,10 +55,14 @@ fmt.Printf("Is PII: %v (%.2f confidence)\n", result.IsLikelyName, result.Confide
 The library now includes embedded data and works out of the box:
 
 ```bash
-go get github.com/montevive/go-name-detector
+# Latest version (recommended)
+go get github.com/montevive/go-name-detector@latest
+
+# Or pin to v1.0.0
+go get github.com/montevive/go-name-detector@v1.0.0
 ```
 
-That's it! No additional setup, file downloads, or protobuf compilation required.
+That's it! No additional setup, file downloads, or protobuf compilation required. The library is **production-ready** as of v1.0.0.
 
 ### Advanced Installation (Custom Data)
 
@@ -347,6 +357,27 @@ result := detector.DetectPII(words)
 **Low confidence scores**: The system is conservative by design. Names not in the 533M person dataset will score lower.
 
 **Spanish names not detected**: Check that you have both first and last names. Single names may score lower due to ambiguity.
+
+---
+
+## Changelog
+
+### v1.0.0 - Initial Stable Release 🎉
+
+**Released:** August 2025
+
+**What's New:**
+- ✅ **Out-of-the-box functionality** - No setup required, just `go get` and use
+- ✅ **Embedded dataset** - 54MB protobuf file with 727K first names and 983K surnames
+- ✅ **`detector.NewDefault()`** - Instant initialization with embedded data
+- ✅ **Production ready** - Stable API, comprehensive documentation
+- ✅ **Performance optimized** - 10x faster than Python, 6x less memory
+- ✅ **Universal algorithm** - Works with all cultural naming patterns
+- ✅ **CLI tool included** - Ready-to-use command line interface
+
+**Breaking Changes:** None (initial release)
+
+**Migration:** This is the first stable release. Previous development versions are not supported.
 
 ---
 
