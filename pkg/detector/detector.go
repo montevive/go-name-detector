@@ -3,6 +3,7 @@ package detector
 import (
 	"fmt"
 	"strings"
+	"unicode"
 
 	"github.com/montevive/go-name-detector/pkg/loader"
 	"github.com/montevive/go-name-detector/pkg/types"
@@ -124,9 +125,9 @@ func (d *Detector) isValidNameWord(word string) bool {
 		return false
 	}
 	
-	// Must contain only letters (and possibly hyphens, apostrophes)
+	// Must contain only letters (and possibly hyphens, apostrophes, dots)
 	for _, r := range word {
-		if !((r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || r == '-' || r == '\'' || r == '.') {
+		if !(unicode.IsLetter(r) || r == '-' || r == '\'' || r == '.') {
 			return false
 		}
 	}
@@ -147,6 +148,28 @@ func (d *Detector) isValidNameWord(word string) bool {
 	}
 	
 	return !commonWords[lowerWord]
+}
+
+// isProbablyPreposition checks if a word is likely a preposition/connector
+// that shouldn't be counted as a first or last name
+func (d *Detector) isProbablyPreposition(word string) bool {
+	lowerWord := strings.ToLower(word)
+	// Common prepositions/connectors in multiple languages
+	prepositions := map[string]bool{
+		// Spanish
+		"de": true, "del": true, "la": true, "el": true,
+		"los": true, "las": true, "y": true,
+		// Portuguese
+		"da": true, "do": true, "dos": true, "das": true,
+		// French
+		"du": true, "le": true, "les": true,
+		// Dutch/German
+		"van": true, "von": true, "der": true, "den": true,
+		// English
+		"of": true, "and": true,
+	}
+	
+	return prepositions[lowerWord]
 }
 
 // generateCombinations creates all possible splits of words into first names and surnames

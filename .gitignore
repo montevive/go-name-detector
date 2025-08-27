@@ -64,3 +64,5 @@ coverage.out
 # Local development files
 /tmp/
 *.local
+check_venv
+*.pyc
