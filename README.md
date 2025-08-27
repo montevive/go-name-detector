@@ -96,20 +96,29 @@ make build
 # Output: ✓ Likely PII name (85.3% confidence)
 
 # Spanish names with double surnames  
-./bin/pii-check "Jose Manuel Robles Hermoso"
-# Output: ✓ Likely PII name (92.1% confidence)
+./bin/pii-check "Jose Manuel García López"
+# Output: ✓ Likely PII name (89.0% confidence)
 #         First names: Jose, Manuel
-#         Surnames: Robles, Hermoso
+#         Surnames: García, López
+
+# Spanish names with accents (60% threshold recommended)
+./bin/pii-check -threshold 0.6 "José García"
+# Output: ✓ Likely PII name (64.8% confidence)
+
+# Business terminology properly rejected
+./bin/pii-check "Informe de Cliente"  
+# Output: ✗ Not a PII name (26.4% confidence)
 
 # Non-name phrases
 ./bin/pii-check "The quick brown fox"
 # Output: ✗ Not a PII name (12.4% confidence)
 
-# JSON output
-./bin/pii-check -json "Maria Garcia Lopez"
+# JSON output with accent support
+./bin/pii-check -json "María García López"
 
-# Custom threshold
-./bin/pii-check -threshold 0.8 "Antonio Perez"
+# High precision threshold
+./bin/pii-check -threshold 0.8 "José Manuel García López"
+# Output: ✓ Likely PII name (89.0% confidence)
 
 # Batch processing
 ./bin/pii-check -batch names.txt
@@ -479,7 +488,22 @@ result := detector.DetectPII(words)
 
 **Low confidence scores**: The system is conservative by design. Names not in the 533M person dataset will score lower.
 
-**Spanish names not detected**: Check that you have both first and last names. Single names may score lower due to ambiguity.
+**Spanish names with accents not detected**: 
+- Two-word Spanish names (José García) typically score 60-70% with enhanced scoring
+- Use threshold **0.6 instead of default 0.7** for Spanish/Latin datasets
+- The algorithm prioritizes accuracy over false positives to avoid detecting business terms
+- Example: `./bin/pii-check -threshold 0.6 "José García"` → ✓ 64.8% confidence
+
+**Business terms being detected as names**: 
+- Enhanced scoring now heavily penalizes business terminology
+- "Informe de Cliente" scores ~26% (down from 42% in older versions)
+- Prepositions like "de", "del" receive automatic penalties
+- If still getting false positives, try increasing threshold to 0.75-0.8
+
+**Mixed results with accented vs non-accented names**:
+- Library uses dual lookup: tries "José" first, then "Jose" as fallback
+- Both versions exist in dataset with different popularity rankings
+- Results may vary based on which version has better ranking in the database
 
 ---
 
