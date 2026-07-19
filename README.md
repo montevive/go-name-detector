@@ -280,6 +280,37 @@ Each name entry contains:
 - **Gender data**: Male/Female probabilities (first names only)
 - **Popularity ranks**: 1-indexed ranking per country (1 = most popular)
 
+## Bloom Filter Export
+
+`cmd/bloomexport` builds a compact Bloom filter of popular names for
+client-side membership checks — e.g. validating NER PERSON candidates in a
+browser where the name list must be small and nothing may leave the device.
+
+```bash
+go run ./cmd/bloomexport -names first -max-rank 2000 -out first-names-top.bloom
+# selected 25608 names -> first-names-top.bloom (35227 bytes, ~0.5% expected FP)
+```
+
+Flags: `-countries` (CSV of country codes whose rankings count, default a
+34-country ES/LATAM/EU/US set), `-max-rank` (popularity cutoff, 0 = all
+names), `-bits-per-entry` (default 11), `-k` (probes, default 8), `-names`
+(`first` or `last`), `-out`.
+
+Binary format (`NBF1`): 4-byte magic, uint32 LE `k`, uint64 LE `m` (bits),
+then the bit array (LSB-first per byte). Lookup contract for any client:
+
+```
+key  = lowercase(trim(NFD(name) minus combining marks))
+h    = FNV-1a 32 over UTF-8 bytes of key
+h1   = fmix32(h)                      // murmur3 finalizer
+h2   = fmix32(h ^ 0x5bd1e995) | 1
+bit_i = (h1 + i*h2) mod m, i in [0, k)   // member iff all k bits set
+```
+
+Bloom errors are one-sided: a false positive claims a non-name is a name,
+a real name in the selected set is never missed — the safe direction for
+PII masking.
+
 ## Performance
 
 ### 🚀 Benchmarks vs Python Original
